@@ -1,5 +1,5 @@
 import requests
-
+import time
 from typing import List, Dict, Optional
 
 class NYC311Reader:
@@ -39,12 +39,15 @@ class NYC311Reader:
 
         if since:
             params["$where"] = f"created_data> '{since}"
-
-        try: 
-            response = self.session.get(self.BASE_URL, params=params, timeout=10)
-            response.raise_for_status()
-        except requests.RequestException as e:
-            raise RuntimeError(f"Error fetching data from NYC 311 API: {e}")
-        
-        return response.json()
+        for attempt in range(5):
+            print(f"Trying attempt {attempt}.")
+            try: 
+                response = self.session.get(self.BASE_URL, params=params, timeout=10)
+                response.raise_for_status()
+                return response.json()
+            except requests.exceptions.HTTPError as e: # TODO: research looks like potential app token to bypass maybe explore.  
+                if response.status_code == 429:
+                    time.sleep(2 ** attempt)
+            except requests.RequestException as e:
+                raise RuntimeError(f"Error fetching data from NYC 311 API: {e}")
             

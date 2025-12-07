@@ -1,0 +1,56 @@
+from dateutil import parser
+import datetime
+from dataclasses import dataclass, field
+from typing import Optional, Any
+
+@dataclass
+class RequestNYCRecords:
+    created_date: str
+    complaint_type: str
+    borough: Optional[str] = None
+    latitude: Optional[str] = None
+    longitude: Optional[str] = None
+
+    # Any converted fields push here.
+    created_dt: datetime = field(init=False)
+
+    def __init__(self, **kwargs: Any):
+        self.created_date = kwargs.get("created_date")
+        self.complaint_type = kwargs.get("complaint_type")
+        self.borough = kwargs.get("borough")
+        self.latitude = kwargs.get("latitude")
+        self.longitude = kwargs.get("longitude")
+
+        self.__post_init__()
+
+    def __post_init__(self):
+        try:
+            self.created_dt = parser.parse(self.created_date)
+        except: 
+            raise ValueError(f"Invalid created_date: {self.created_date}")
+        
+        # Validate lat/lon as floats
+        self.latitude = self._safe_float(self.latitude)
+        self.longitude = self._safe_float(self.longitude)
+
+    @staticmethod
+    def _safe_float(val):
+        try: 
+            return float(val)
+        except (TypeError, ValueError):
+            None
+
+    def to_dict(self) -> dict:
+        """
+        Ready for pandas DataFrame
+        """
+        return {
+            "created_date": self.created_dt,
+            "complaint_type": self.complaint_type,
+            "borough": self.borough,
+            "latitude": self.latitude,
+            "longitude": self.longitude
+        }
+
+    
+    
