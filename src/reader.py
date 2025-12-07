@@ -65,8 +65,8 @@ class NYC311Reader(ReaderBase):
                 )
                 response.raise_for_status()
                 return response.json()
-            except requests.exceptions.HTTPError as e: # TODO: research looks like potential app token to bypass maybe explore.  
-                if response.status_code == 429:
+            except requests.exceptions.HTTPError as e:
+                if response.status_code == 429 and e.response is not None:
                     print(f"Rate limit hit. Retrying in {wait_time}s.")
                     time.sleep(wait_time)
                     continue

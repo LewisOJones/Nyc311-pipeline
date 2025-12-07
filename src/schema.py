@@ -1,7 +1,7 @@
 from dateutil import parser
 from datetime import datetime
-from dataclasses import dataclass, field
-from typing import Optional, Any
+from dataclasses import dataclass, field, fields
+from typing import Optional, Any, Dict
 
 @dataclass
 class NYC311Record:
@@ -14,16 +14,6 @@ class NYC311Record:
 
     # Any converted fields push here.
     created_dt: datetime = field(init=False)
-
-    def __init__(self, **kwargs: Any):
-        self.unique_key = kwargs.get("unique_key")
-        self.created_date = kwargs.get("created_date")
-        self.complaint_type = kwargs.get("complaint_type")
-        self.borough = kwargs.get("borough")
-        self.latitude = kwargs.get("latitude")
-        self.longitude = kwargs.get("longitude")
-
-        self.__post_init__()
 
     def __post_init__(self):
         if not self.created_date or not self.complaint_type:
@@ -45,18 +35,21 @@ class NYC311Record:
         except (TypeError, ValueError):
             return None
 
+    @classmethod
+    def from_api(cls, raw: Dict[str, Any]) -> "NYC311Record":
+        """
+        Factory for the class that takes the raw API dict (which has loads of fields) and
+        filters it down to the fields this dataclass cares about.
+        """
+        field_names = {f.name for f in fields(cls) if f.init}
+        data = {name: raw.get(name) for name in field_names}
+        return cls(**data)
+
     def to_dict(self) -> dict:
         """
         Ready for pandas DataFrame
         """
-        return {
-            "unique_key": self.unique_key,
-            "created_date": self.created_date,
-            "complaint_type": self.complaint_type,
-            "borough": self.borough,
-            "latitude": self.latitude,
-            "longitude": self.longitude
-        }
+        return {f.name: getattr(self, f.name) for f in fields(self) if f.init}
 
     
     

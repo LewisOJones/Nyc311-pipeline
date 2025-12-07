@@ -21,7 +21,7 @@ class PipelineRunner:
         """
         First implementation implements a single ETL Cycle: fetch -> clean -> wrote.
         """
-        print("PipelineRunner: Fetching raw data")
+        print(f"PipelineRunner: Fetching raw data with raw run params: {run_kwargs}")
         raw_records = self.reader.fetch(**run_kwargs)
 
         print(f"Pipeline Runner: Fetched {len(raw_records)} raw records.")
@@ -30,7 +30,7 @@ class PipelineRunner:
         print("PipelineRunner: Validating  + normalising records..")
         for rec in raw_records:
             try: 
-                row = NYC311Record(**rec)
+                row = NYC311Record.from_api(rec)
                 cleaned.append(row.to_dict())
             except ValueError:
                 continue
