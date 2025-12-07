@@ -1,5 +1,9 @@
+# ide
+.vscode/
+
 # Python 
 __pychache__
+.pytest_cache/
 *.pyc
 .venv/
 venv/
