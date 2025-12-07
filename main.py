@@ -101,6 +101,22 @@ def cmd_drop(args):
     db.drop_table()
 
 
+def cmd_trends(args):
+    from src.trends import TrendAnalyser
+    ta = TrendAnalyser()
+    if args.kind == "daily":
+        ta.daily_volume()
+    elif args.kind == "top":
+        ta.top_complaints(args.top_n)
+    else:
+        ta.borough_distribution()
+
+
+def cmd_alerts(args):
+    from src.alerts import AlertEngine
+    ae = AlertEngine()
+    ae.recent_complaints(args.filter, args.hours)
+
 # ─────────────────────────────────────────────
 # Parser Builder
 # ─────────────────────────────────────────────
@@ -157,6 +173,20 @@ def build_parser():
     add_db_args(p_drop)
     p_drop.set_defaults(func=cmd_drop)
 
+
+    # Analysis commands
+    # trends command
+    p_trends = subparsers.add_parser("trends", help="Run simple historical trend analysis")
+    p_trends.add_argument("--kind", choices=["daily", "top", "borough"], default="daily")
+    p_trends.add_argument("--top_n", type=int, default=10)
+    p_trends.set_defaults(func=cmd_trends)
+
+    # alerts command
+    p_alerts = subparsers.add_parser("alerts", help="Run alert engine for recent complaints")
+    p_alerts.add_argument("--filter", required=True, help="Complaint substring filter")
+    p_alerts.add_argument("--hours", type=int, default=24)
+    p_alerts.set_defaults(func=cmd_alerts)
+
     return parser
 
 
@@ -176,9 +206,9 @@ if __name__ == "__main__":
     # IDE MODE: If no arguments provided, simulate a CLI call for convenience.
     if len(sys.argv) == 1:
         sys.argv.extend([
-            "listen",
+            "trends",
            # "--limit", "50",
-            "--since", "2025-10-01"
+            "--kind", "top", "--top_n", "10"
         ])
         print(f"(Simulated CLI call) → python main.py {' '.join(sys.argv[1:])}")
 

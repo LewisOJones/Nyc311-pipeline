@@ -6,3 +6,6 @@ venv/
 
 # Data 
 data/
+
+# analysis
+analysis/output
