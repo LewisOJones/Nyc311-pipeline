@@ -1,9 +1,15 @@
 import requests
 import time
 import os
+from abc import ABC, abstractmethod
 from typing import List, Dict, Optional
 
-class NYC311Reader:
+class ReaderBase(ABC):
+    def fetch(self, *args) -> List[Dict]:
+        pass
+
+
+class NYC311Reader(ReaderBase):
     """
     This will fetch the data from NYC API. 
     We will use requests module to fetch data from the API. 
