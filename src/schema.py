@@ -5,6 +5,7 @@ from typing import Optional, Any
 
 @dataclass
 class NYC311Record:
+    unique_key: str 
     created_date: str
     complaint_type: str
     borough: Optional[str] = None
@@ -15,6 +16,7 @@ class NYC311Record:
     created_dt: datetime = field(init=False)
 
     def __init__(self, **kwargs: Any):
+        self.unique_key = kwargs.get("unique_key")
         self.created_date = kwargs.get("created_date")
         self.complaint_type = kwargs.get("complaint_type")
         self.borough = kwargs.get("borough")
@@ -48,7 +50,8 @@ class NYC311Record:
         Ready for pandas DataFrame
         """
         return {
-            "created_date": self.created_dt,
+            "unique_key": self.unique_key,
+            "created_date": self.created_date,
             "complaint_type": self.complaint_type,
             "borough": self.borough,
             "latitude": self.latitude,
