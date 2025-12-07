@@ -1,15 +1,15 @@
 from dateutil import parser
-import datetime
+from datetime import datetime
 from dataclasses import dataclass, field
 from typing import Optional, Any
 
 @dataclass
-class RequestNYCRecords:
+class NYC311Record:
     created_date: str
     complaint_type: str
     borough: Optional[str] = None
-    latitude: Optional[str] = None
-    longitude: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
 
     # Any converted fields push here.
     created_dt: datetime = field(init=False)
@@ -24,6 +24,9 @@ class RequestNYCRecords:
         self.__post_init__()
 
     def __post_init__(self):
+        if not self.created_date or not self.complaint_type:
+            raise ValueError("Missing required fields.")
+        
         try:
             self.created_dt = parser.parse(self.created_date)
         except: 
@@ -38,7 +41,7 @@ class RequestNYCRecords:
         try: 
             return float(val)
         except (TypeError, ValueError):
-            None
+            return None
 
     def to_dict(self) -> dict:
         """
