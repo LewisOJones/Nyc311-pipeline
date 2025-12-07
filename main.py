@@ -1,7 +1,7 @@
 import pandas as pd 
 
 from src.reader import NYC311Reader
-from src.schema import RequestNYCRecords
+from src.schema import NYC311Record
 
 def main():
     reader = NYC311Reader(limit=20)
@@ -11,7 +11,7 @@ def main():
     cleaned_record = []
     for record in data:
         try: 
-            obj = RequestNYCRecords(**record)
+            obj = NYC311Record(**record)
             cleaned_record.append(obj.to_dict())
         except ValueError:
             continue
