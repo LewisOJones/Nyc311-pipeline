@@ -15,7 +15,11 @@ class AlertEngine:
 
     def _load_df(self):
         with sqlite3.connect(self.db_path) as conn:
-            df = pd.read_sql("SELECT * FROM requests", conn)
+            try: 
+                df = pd.read_sql("SELECT * FROM requests", conn)
+            except pd.errors.DatabaseError as e:
+                print(f"Please first load data into the database, before running analysis")
+                raise
         df["created_date"] = pd.to_datetime(df["created_date"])
         return df
 

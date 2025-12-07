@@ -64,12 +64,12 @@ class NYC311Reader(ReaderBase):
                     timeout=10
                 )
                 response.raise_for_status()
-                return response.json()
-            except requests.exceptions.HTTPError as e:
                 if response.status_code == 429 and e.response is not None:
                     print(f"Rate limit hit. Retrying in {wait_time}s.")
                     time.sleep(wait_time)
                     continue
+                
+                return response.json()
 
             except requests.RequestException as e:
                 print(f"Network error: {e}. Retrying in {wait_time}s...")

@@ -95,3 +95,11 @@ The entire project is orchestrated via a clean command-line interface using argp
 * Decoupled from implementation details
 
 * Makes ETL testable and extendable (can mock components, plug in other strategies etc)
+
+## Quick Start Example
+```
+python main.py run --limit 50
+python main.py preview --n 10
+python main.py trends --kind daily
+python main.py alerts --filter "noise" --house 200
+```
