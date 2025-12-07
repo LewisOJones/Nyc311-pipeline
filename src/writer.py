@@ -56,18 +56,18 @@ class SQLiteWriter(WriterBase):
                 # Ensure unique index exists
                 self._ensure_unique_constraint(conn, table)
 
-                # Stage into temp table
-                df.to_sql("temp_import", conn, if_exists="replace", index=False)
-
                 before = conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
 
                 # UPSERT rows using dynamic column selection
                 columns = ", ".join(df.columns)
+                placeholders = ", ".join(['?'] * len(df.columns))
+                rows = df.values.tolist()
 
-                conn.execute(f"""
-                    INSERT OR IGNORE INTO {table} ({columns})
-                    SELECT {columns} FROM temp_import;
-                """)
+                conn.executemany(f"""
+                    INSERT OR IGNORE INTO {table} ({columns}) VALUES ({placeholders})
+                    """, 
+                    rows
+                )
 
                 after = conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
                 inserted = after - before
